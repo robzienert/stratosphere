@@ -1,7 +1,7 @@
 import requests
 from urlparse import urlparse
 import os
-from toposort import toposort, toposort_flatten
+from toposort import toposort
 
 try:
     from troposphere import Template
@@ -90,34 +90,6 @@ class Stack(BaseStratosphereObject):
 
         for parameter in self.Parameters:
             parameter.validate(self)
-
-
-class Parameter(BaseStratosphereObject):
-    RESOURCE = 'resource'
-    OUTPUT = 'output'
-    PARAMETER = 'parameter'
-
-    props = {
-        'Source': (basestring, False),
-        'Type': (basestring, False),
-        'Variable': (basestring, False),
-        'Provider': (LookupProvider, False),
-        'Value': (basestring, False)
-    }
-
-    valid_types = [RESOURCE, OUTPUT, PARAMETER]
-
-    def __init__(self, title, **kwargs):
-        super(Parameter, self).__init__(title, **kwargs)
-        self.value = None
-
-    def validate(self, stack):
-        # TODO Allow string references to provider; validate it exists
-        if self.Source is not None:
-            if self.Type not in self.valid_types:
-                raise ValueError()
-            if self.Variable is None:
-                raise ValueError()
 
 
 class Superstack(object):
