@@ -1,7 +1,5 @@
-import requests
-from urlparse import urlparse
-import os
 from toposort import toposort
+
 
 try:
     from troposphere import Template
@@ -22,7 +20,14 @@ class BaseStratosphereObject(object):
 
     def __getattr__(self, name):
         try:
-            return self.properties.__getitem__(name)
+            value = self.properties.__getitem__(name)
+
+            # Special case for Stacks; StackName can be inferred or set
+            # explicitly.
+            if name == 'StackName' and value is None:
+                value = self.title
+
+            return value
         except KeyError:
             raise AttributeError(name)
 
@@ -56,14 +61,24 @@ class BaseStratosphereObject(object):
     def validate(self, superstack):
         pass
 
+    # TODO: Really don't like having two validate methods.
+    def full_validate(self, superstack):
+        for k, (_, required) in self.props.items():
+            if required and k not in self.properties:
+                raise ValueError(
+                    'property %s required in stack %s' % (k, self.title)
+                )
+        self._validate(superstack)
+
 
 class Stack(BaseStratosphereObject):
     props = {
-        'CloudFormationTemplate': (template_types, False),
+        'CloudFormationTemplate': (template_types, True),
         'Description': (basestring, False),
         'DependsOn': (list, False),
         'Parameters': (list, False),
-        'SnsNotification': (list, False)
+        'SnsNotification': (list, False),
+        'StackName': (basestring, False)
     }
 
     def __init__(self, title, **kwargs):
@@ -71,23 +86,6 @@ class Stack(BaseStratosphereObject):
         self.parameter_values = {}
 
     def validate(self, superstack):
-        if isinstance(self.CloudFormationTemplate, basestring):
-            u = urlparse(self.CloudFormationTemplate)
-            if not u.netloc:
-                if not os.path.exists(u.path):
-                    raise IOError(
-                        'could not find local CloudFormation template '
-                        'at "%s"' % (u.path,)
-                    )
-            else:
-                # TODO Do we need to cache this?
-                r = requests.get(self.CloudFormationTemplate)
-                if r.status_code != 200:
-                    raise IOError(
-                        'could not find remote CloudFormation template '
-                        ' at "%s"' % (self.CloudFormationTemplate,)
-                    )
-
         for parameter in self.Parameters:
             parameter.validate(self)
 

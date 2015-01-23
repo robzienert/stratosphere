@@ -1,6 +1,10 @@
-from stratosphere import Parameter
-import requests
 import csv
+
+import requests
+import boto.cloudformation
+
+from stratosphere.parameters import Parameter
+
 
 class LookupProvider(object):
 
@@ -12,6 +16,9 @@ class LookupProvider(object):
 
 
 class CloudFormationLookupProvider(LookupProvider):
+
+    def __init__(self, region):
+        self.conn = boto.cloudformation.connect_to_region(region)
 
     def lookup(self, superstack, stack, parameter):
         target_stack = superstack.stacks[parameter.Source]
@@ -43,9 +50,8 @@ class UbuntuAmiLookupProvider(LookupProvider):
     AMI_IDX = 7
     VIRTUALIZATION_IDX = 10
 
-    def __init__(self, release, region='us-east-1', virtualization='hvm',
-                 arch='amd64', type='ebs-ssd', use_cache=True):
-        self.region = region
+    def __init__(self, release, virtualization='hvm', arch='amd64',
+                 type='ebs-ssd', use_cache=True):
         self.release = release
         self.virtualization = virtualization
         self.arch = arch
@@ -67,7 +73,7 @@ class UbuntuAmiLookupProvider(LookupProvider):
         for image in list(csv.reader(r.text.split('\n'), delimiter='\t')):
             if len(image) != 11:
                 continue
-            if image[self.REGION_IDX] != self.region:
+            if image[self.REGION_IDX] != superstack.region:
                 continue
             if image[self.ARCH_IDX] != self.arch:
                 continue
@@ -80,3 +86,4 @@ class UbuntuAmiLookupProvider(LookupProvider):
             break
 
         return self.ami
+

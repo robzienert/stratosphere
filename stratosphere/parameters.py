@@ -34,7 +34,9 @@ class ParameterValueResolver(object):
 
     def __init__(self, superstack):
         self.superstack = superstack
-        self.cfn_provider = providers.CloudFormationLookupProvider()
+        self.cfn_provider = providers.CloudFormationLookupProvider(
+            superstack.region
+        )
 
     def resolve_stack(self, stack):
         for parameter in stack.Parameters:
