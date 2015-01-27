@@ -29,8 +29,8 @@ class YamlConfigLoader(ConfigLoader):
 class CloudFormationLoader(object):
     """
     TODO
-        Template paths are returned as strings currently; not sure if I want to
-        parse them as json yet.
+        Template paths are returned as strings currently; not sure if I want
+        to parse them as json yet.
     """
 
     def load(self, template):
@@ -55,4 +55,6 @@ class CloudFormationLoader(object):
                 return str(r.text)
         else:
             # TODO Handle troposphere templates
-            raise NotImplementedError('troposphere templates not yet supported')
+            raise NotImplementedError(
+                'troposphere templates not yet supported'
+            )

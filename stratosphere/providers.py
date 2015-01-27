@@ -21,7 +21,7 @@ class CloudFormationLookupProvider(LookupProvider):
         self.conn = boto.cloudformation.connect_to_region(region)
 
     def lookup(self, superstack, stack, parameter):
-        target_stack = superstack.stacks[parameter.Source]
+        # target_stack = superstack.stacks[parameter.Source]
 
         if parameter.Type == Parameter.OUTPUT:
             # TODO CFN API for output
@@ -86,4 +86,3 @@ class UbuntuAmiLookupProvider(LookupProvider):
             break
 
         return self.ami
-

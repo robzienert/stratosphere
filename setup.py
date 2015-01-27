@@ -8,7 +8,7 @@ setup(
     author_email='rob@robzienert.com',
     license='MIT License',
     packages=['stratosphere'],
-    setup_requires=['pep8', 'pyflakes'],
+    setup_requires=['pep8', 'pyflakes', 'moto'],
     install_requires=['toposort', 'requests', 'boto'],
     scripts=[],
     test_suite='tests',
