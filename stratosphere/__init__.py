@@ -16,8 +16,6 @@ class BaseStratosphereObject(object):
         self.propnames = self.props.keys()
         self.properties = {}
 
-        print self.propnames
-
         self.__initialized = True
 
         for k, v in kwargs.items():
