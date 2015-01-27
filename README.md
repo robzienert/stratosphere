@@ -1,3 +1,5 @@
+[![Build Status](https://snap-ci.com/robzienert/stratosphere/branch/master/build_image)](https://snap-ci.com/robzienert/stratosphere/branch/master)
+
 # stratosphere
 
 It's above [troposphere](https://github.com/cloudtools/troposphere).
