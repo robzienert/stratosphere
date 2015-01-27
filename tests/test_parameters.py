@@ -29,5 +29,6 @@ class TestParameter(unittest.TestCase):
             )
             param.validate(None)
 
+
 class TestParameterValueResolver(unittest.TestCase):
     pass

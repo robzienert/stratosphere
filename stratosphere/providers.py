@@ -3,6 +3,7 @@ import csv
 import requests
 import boto.cloudformation
 
+
 class LookupProvider(object):
 
     def validate(self, superstack):
