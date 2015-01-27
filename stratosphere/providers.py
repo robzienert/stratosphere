@@ -3,9 +3,6 @@ import csv
 import requests
 import boto.cloudformation
 
-from stratosphere.parameters import Parameter
-
-
 class LookupProvider(object):
 
     def validate(self, superstack):
@@ -23,15 +20,15 @@ class CloudFormationLookupProvider(LookupProvider):
     def lookup(self, superstack, stack, parameter):
         # target_stack = superstack.stacks[parameter.Source]
 
-        if parameter.Type == Parameter.OUTPUT:
+        if parameter.Type == 'output':
             # TODO CFN API for output
             pass
 
-        elif parameter.Type == Parameter.RESOURCE:
+        elif parameter.Type == 'resource':
             # TODO
             pass
 
-        elif parameter.Type == Parameter.PARAMETER:
+        elif parameter.Type == 'parameter':
             # TODO
             pass
 
