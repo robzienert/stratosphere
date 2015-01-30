@@ -11,7 +11,7 @@ class TestBasic(unittest.TestCase):
     def test_badrequired(self):
         with self.assertRaises(ValueError):
             s = Stack('MyStack')
-            s.full_validate(Superstack())
+            s.validate(Superstack('SomeSuperstack'))
 
     def test_badtype(self):
         with self.assertRaises(TypeError):
@@ -90,17 +90,10 @@ class TestValidators(unittest.TestCase):
             'fake', callcorrect=True, singlelist=[10]
         )
         with self.assertRaises(ValueError):
-            fake.full_validate(None)
+            fake.validate(None)
 
     def test_tuples(self):
         FakeStratosphereObject('fake', multituple=True)
         FakeStratosphereObject('fake', multituple=10)
         with self.assertRaises(TypeError):
             FakeStratosphereObject('fake', multituple=0.1)
-
-# class TestStack(unittest.TestCase):
-#     pass
-#
-#
-# class TestSuperstack(unittest.TestCase):
-#     pass

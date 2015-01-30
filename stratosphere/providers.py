@@ -1,7 +1,6 @@
 import csv
 
 import requests
-import boto.cloudformation
 
 
 class LookupProvider(object):
@@ -15,8 +14,8 @@ class LookupProvider(object):
 
 class CloudFormationLookupProvider(LookupProvider):
 
-    def __init__(self, region):
-        self.conn = boto.cloudformation.connect_to_region(region)
+    def __init__(self, cfn_registry):
+        self.registry = cfn_registry
 
     def lookup(self, superstack, stack, parameter):
         # target_stack = superstack.stacks[parameter.Source]

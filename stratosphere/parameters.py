@@ -19,18 +19,27 @@ class Parameter(BaseStratosphereObject):
     def __init__(self, title, **kwargs):
         super(Parameter, self).__init__(title, **kwargs)
 
-    def validate(self, stack):
+    def _validate(self, stack):
         # TODO Allow string references to provider; validate it exists
         if self.Source is not None:
             if not isinstance(self.Source, Stack):
                 raise TypeError('source must be of type stratosphere.Stack')
+
             if self.Type not in self.valid_types:
                 raise ValueError(
                     'type must be one of "resource", "output" or "parameter", '
                     '"%s" given' % (self.Type,)
                 )
+
             if self.Variable is None:
                 raise ValueError('variable must not be blank')
+
+            if self.Source.StackName not in stack.DependsOn:
+                raise ValueError(
+                    'parameter "%s" has dependency on "%s" which is not '
+                    'defined in "%s" DependsOn list'
+                    % (self.title, self.Source.StackName, stack.StackName))
+
         elif self.Provider is None and self.Value is None:
             raise ValueError('a parameter must have either a value, provider '
                              'or stack resource reference')

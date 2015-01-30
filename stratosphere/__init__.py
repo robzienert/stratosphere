@@ -1,5 +1,6 @@
 import types
 from toposort import toposort
+import logging
 
 try:
     from troposphere import Template
@@ -66,17 +67,18 @@ class BaseStratosphereObject(object):
         raise TypeError('%s is %s, expected %s' %
                         (name, type(value), expected_type))
 
-    def validate(self, superstack):
+    def _validate(self, superstack):
         pass
 
-    # TODO: Really don't like having two validate methods.
-    def full_validate(self, superstack):
+    def validate(self, superstack):
+        logging.debug('Validating superstack')
         for k, (_, required) in self.props.items():
             if required and k not in self.properties:
                 raise ValueError(
                     'property %s required in stack %s' % (k, self.title)
                 )
-        self.validate(superstack)
+
+        self._validate(superstack)
 
 
 class Stack(BaseStratosphereObject):
@@ -91,20 +93,28 @@ class Stack(BaseStratosphereObject):
 
     def __init__(self, title, **kwargs):
         self.parameter_values = {}
+        self.template_body = None
         super(Stack, self).__init__(title, **kwargs)
 
-    def validate(self, superstack):
+    def _validate(self, superstack):
+        if self.template_body is None:
+            raise ValueError(
+                '"%s" stack template_body cannot be empty' % (self.title,)
+            )
+
         for parameter in self.Parameters:
             parameter.validate(self)
 
 
 class Superstack(object):
-    def __init__(self):
+    def __init__(self, title):
+        self.title = title
         self.description = None
         self.stacks = {}
         self.providers = []
         self.sns_notifications = []
         self.region = None
+        self.execution_groups = None
 
     def add_description(self, description):
         self.description = description
@@ -144,7 +154,7 @@ class Superstack(object):
         for provider in self.providers:
             provider.validate(self)
 
-        self.sort_stack_dependencies()
+        self.execution_groups = self.sort_stack_dependencies()
 
     def sort_stack_dependencies(self):
         return list(toposort({t: s.depends_on for t, s in self.stacks}))

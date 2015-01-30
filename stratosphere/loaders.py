@@ -1,5 +1,7 @@
+import logging
 from urlparse import urlparse
 import os
+import json
 
 import requests
 
@@ -15,6 +17,7 @@ class ConfigLoader(object):
 
 class PythonConfigLoader(ConfigLoader):
     def load(self, filename):
+        logging.debug('Loading "%s"' % (filename,))
         self._validate_file(filename)
 
         with open(filename, 'r') as f:
@@ -34,6 +37,7 @@ class CloudFormationLoader(object):
     """
 
     def load(self, template):
+        logging.debug('Loading "%s"' % (template,))
         if isinstance(template, basestring):
             u = urlparse(template)
             if not u.netloc:
@@ -43,7 +47,7 @@ class CloudFormationLoader(object):
                         'at "%s"' % (u.path,)
                     )
                 with open(u.path, 'r') as f:
-                    return f.read()
+                    return json.loads(f.read())
 
             else:
                 r = requests.get(template)
@@ -52,7 +56,7 @@ class CloudFormationLoader(object):
                         'could not find remote CloudFormation template '
                         ' at "%s"' % (template,)
                     )
-                return str(r.text)
+                return json.loads(str(r.text))
         else:
             # TODO Handle troposphere templates
             raise NotImplementedError(
